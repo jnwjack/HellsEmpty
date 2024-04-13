@@ -45,5 +45,8 @@ void COISpriteSetExtraCollision(COISprite* sprite, COIExtraCollision* collision)
 void COISpriteSetPos(COISprite* sprite, int x, int y);
 void COISpriteAnimateInPlace(COISprite* sprite);
 bool COISpriteContainsPoint(COISprite* sprite, int x, int y);
+bool COISpriteUnderPoint(COISprite* sprite, int x, int y);
+bool COISpriteIsLeftOfPoint(COISprite* sprite, int x, int y);
+bool COISpriteIsRightOfPoint(COISprite* sprite, int x, int y);
 
 #endif

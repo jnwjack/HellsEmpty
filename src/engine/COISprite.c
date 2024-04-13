@@ -163,3 +163,22 @@ bool COISpriteContainsPoint(COISprite* sprite, int x, int y) {
 	  y >= sprite->_y && y <= extentY);
 }
 
+bool COISpriteUnderPoint(COISprite* sprite, int x, int y) {
+  int extentX = sprite->_x + sprite->_width;
+  return (x >= sprite->_x  && x <= extentX &&
+	  y == sprite->_y);
+}
+
+bool COISpriteIsLeftOfPoint(COISprite* sprite, int x, int y) {
+  int extentX = sprite->_x + sprite->_width;
+  int extentY = sprite->_y + sprite->_height;
+  return (x == extentX &&
+    y >= sprite->_y && y <= extentY);
+}
+
+bool COISpriteIsRightOfPoint(COISprite* sprite, int x, int y) {
+  int extentY = sprite->_y + sprite->_height;
+  return (x == sprite->_x &&
+    y >= sprite->_y && y <= extentY);
+}
+
