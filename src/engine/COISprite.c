@@ -156,3 +156,10 @@ void COISpriteSetPos(COISprite* sprite, int x, int y) {
   sprite->_drawRect->y = y;
 }
 
+bool COISpriteContainsPoint(COISprite* sprite, int x, int y) {
+  int extentX = sprite->_x + sprite->_width;
+  int extentY = sprite->_y + sprite->_height;
+  return (x >= sprite->_x && x <= extentX &&
+	  y >= sprite->_y && y <= extentY);
+}
+
