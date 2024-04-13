@@ -89,7 +89,6 @@ void COIBoardLoadSpriteMap(COIBoard* board, SDL_Renderer* renderer, const char* 
   int i = 0;
   COISprite* sprite = NULL;
   while (getline(&line, &len, fp) != -1) {
-    printf("hit\n");
     line[strcspn(line, "\n")] = '\0';
 
     assetID = atoi(strtok(line, " "));
