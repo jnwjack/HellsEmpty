@@ -1,4 +1,5 @@
 #include "collision.h"
+#include "types.h"
 
 bool _hasRightOfCollision(COISprite* sprite) {
     return (sprite->_assetID == PLATFORM_LEFT ||

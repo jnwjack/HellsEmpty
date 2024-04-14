@@ -13,8 +13,6 @@
 #define ANGEL 7
 #define HEART 8
 
-
-
 #define CORNER_COLLIDE_TL 1
 #define CORNER_COLLIDE_BL 2
 #define CORNER_COLLIDE_TR 4

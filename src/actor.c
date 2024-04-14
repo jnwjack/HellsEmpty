@@ -1,5 +1,6 @@
 #include "actor.h"
 #include "collision.h"
+#include "levels.h"
 #include <math.h>
 
 #define DOG_MOMENTUM 3
@@ -19,6 +20,8 @@ Actor* playerCreate(COIBoard* board, int x, int y) {
   player->health = MAX_HEALTH;
   player->mana = MAX_MANA;
   player->invincible = false;
+  player->timeLeft = LIFETIME;
+  player->jumping = false;
 
   return player;
 }
@@ -64,12 +67,15 @@ void playerTick(Actor* player, COIBoard* board, void* context) {
       unsigned int collisionResult = collisionCheckOnTopOf(player->sprite, board, 0, y);
       if (collisionResult & CORNER_COLLIDE_BL || collisionResult & CORNER_COLLIDE_BR) {
         effectiveYMomentum = y;
+        player->jumping = false;
         break;
       }
     }
 
     if (effectiveYMomentum > 0) {
       COIBoardMoveSprite(board, player->sprite, 0, effectiveYMomentum);
+    } else {
+      player->jumping = false;
     }
   } else if (player->yMomentum < 0) {
     COIBoardMoveSprite(board, player->sprite, 0, player->yMomentum);
@@ -107,6 +113,14 @@ void playerTick(Actor* player, COIBoard* board, void* context) {
 
     player->xMomentum = effectiveXMomentum;
   }
+
+  if (player->sprite->_y == 0 && tc->level <= 4) {
+    tc->level++;
+    loadLevel(tc, board, tc->level);
+
+    player->sprite->_y = SCREEN_HEIGHT - player->sprite->_height;
+    player->yMomentum = MAX(-15, tc->player->yMomentum - 30);
+  }
 }
 
 Actor* rockCreate(COIBoard* board, int x, int y) {
@@ -127,12 +141,13 @@ void rockTick(Actor* rock, COIBoard* board, void* context) {
   TestContext* tc = (TestContext*)context;
 
   // Do we have this soul type?
+
   if (tc->souls.length > 0) {
     rock->timeLeft--;
-    if (rock->timeLeft == 0) {
-      LinkedListRemove(tc->actors, rock);
-      actorDestroy(rock, board);
-    }
+    // if (rock->timeLeft == 0) {
+    //   LinkedListRemove(tc->actors, rock);
+    //   actorDestroy(rock, board);
+    // }
   } else if (collisionWithPlayer(rock->sprite, tc->player->sprite)) {
     printf("got rock soul\n");
     IntListAdd(&tc->souls, ROCK);
@@ -156,6 +171,7 @@ Actor* fireballCreate(COIBoard* board, int x, int y, int targetX, int targetY) {
   fireball->counter = 0;
   fireball->distanceToTarget[0] = targetX - x;
   fireball->distanceToTarget[1] = targetY - y;
+  fireball->timeLeft = LIFETIME;
 
   fireball->xMomentum = fireball->distanceToTarget[0] < 0 ? -1 : 1;
   fireball->yMomentum = fireball->distanceToTarget[1] < 0 ? -1 : 1;
@@ -175,7 +191,7 @@ void fireballTick(Actor* fireball, COIBoard* board, void* context) {
   COIBoardMoveSprite(board, fireball->sprite, newX - fireball->sprite->_x, newY - fireball->sprite->_y);
 
   TestContext* tc = (TestContext*)context;
-  if (!fireball->sprite->_visible) {
+  if (!fireball->sprite->_visible || fireball->sprite->_x < 32) {
     // Out of frame, delete fireball
     LinkedListRemove(tc->actors, fireball);
     actorDestroy(fireball, board);
@@ -201,6 +217,7 @@ Actor* angelCreate(COIBoard* board, int x, int y) {
   angel->tick = angelTick;
   angel->counter = 0;
   angel->sprite = angelSprite;
+  angel->timeLeft = LIFETIME;
 
   return angel;                                                
 }
@@ -238,11 +255,11 @@ void dogTick(Actor* dog, COIBoard* board, void* context) {
   TestContext* tc = (TestContext*)context;
 
   dog->timeLeft--;
-  if (dog->timeLeft == 0) {
-    LinkedListRemove(tc->actors, dog);
-    actorDestroy(dog, board);
-    return;
-  }
+  // if (dog->timeLeft == 0) {
+  //   LinkedListRemove(tc->actors, dog);
+  //   actorDestroy(dog, board);
+  //   return;
+  // }
 
   dog->yMomentum = MIN(MAX_MOMENTUM, dog->yMomentum + 1);
 
@@ -297,11 +314,11 @@ void dogTick(Actor* dog, COIBoard* board, void* context) {
   // Collision with enemies
   LinkedListNode* oldNode = tc->actors->cursor; // Save place, reset when done
   LinkedListResetCursor(tc->actors);
-  Actor* currentActor = LinkedListNext(tc->actors);
+  void* nextData = LinkedListNext(tc->actors);
+  Actor* currentActor = (Actor*)nextData;
   while (currentActor) {
     if (currentActor->sprite->_assetID == ANGEL && collisionWithPlayer(dog->sprite, currentActor->sprite) != 0) {
-      LinkedListRemove(tc->actors, currentActor);
-      actorDestroy(currentActor, board);
+      currentActor->timeLeft = 0;
     }
     currentActor = LinkedListNext(tc->actors);
   }

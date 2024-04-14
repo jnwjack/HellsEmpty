@@ -28,13 +28,13 @@ typedef struct COIWindow {
   COITransition transition;
 }COIWindow;
 
-COIWindow* COIWindowCreate();
+COIWindow* COIWindowCreate(unsigned int width, unsigned int height);
 void COIWindowDestroy(COIWindow* window);
 
 void COIWindowLoop(void* window, bool repeat);
 void COIWindowSetBoard(COIWindow* window, COIBoard* board, COILoop loop);
 SDL_Renderer* COIWindowGetRenderer(COIWindow* window);
-void COIWindowInit();
+void COIWindowInit(unsigned int width, unsigned int height);
 
 // Global Window
 extern COIWindow* COI_GLOBAL_WINDOW;

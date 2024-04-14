@@ -68,6 +68,16 @@ int COIBoardBGColor(COIBoard* board, int index) {
 }
 
 void COIBoardLoadSpriteMap(COIBoard* board, SDL_Renderer* renderer, const char* filename) {
+  if (board->_sprites != NULL) {
+    int i;
+    for (i = 0; i < board->_spriteCount; i++) {
+      if (board->_sprites[i] != NULL) {
+	      free(board->_sprites[i]);
+      }
+    }
+    free(board->_sprites);
+  }
+
   FILE* fp = NULL;
   
   fp = fopen(filename, "r");

@@ -4,6 +4,7 @@
 
 #include "collision.h"
 #include "actor.h"
+#include "levels.h"
 
 #define COLLISION_PLATFORM 2
 #define MANABAR_HEIGHT 224 // 32 * 7
@@ -37,8 +38,9 @@ void testLoop(COIBoard* board, SDL_Event* event, void* context) {
 
   // Accept input
   if (event->type == SDL_KEYDOWN) {
-    if (event->key.keysym.sym == SDLK_SPACE) {
+    if (event->key.keysym.sym == SDLK_SPACE && !tc->player->jumping) {
       tc->player->yMomentum = MAX(-15, tc->player->yMomentum - 30);
+      tc->player->jumping = true;
     } else if (event->key.keysym.sym == SDLK_a) {
       tc->player->moving = LEFT;
 	    // COIBoardMoveSprite(board, tc->square, -30, 0);
@@ -72,31 +74,33 @@ void testLoop(COIBoard* board, SDL_Event* event, void* context) {
   LinkedListResetCursor(tc->actors);
   Actor* currentActor = LinkedListNext(tc->actors);
   while (currentActor) {
-    currentActor->tick(currentActor, board, context);
-    currentActor = LinkedListNext(tc->actors);
+    if (currentActor->timeLeft == 0) {
+      Actor* nextActor = LinkedListNext(tc->actors);
+      LinkedListRemove(tc->actors, currentActor);
+      actorDestroy(currentActor, board);
+      currentActor = nextActor;
+    } else {
+      currentActor->tick(currentActor, board, context);
+      currentActor = LinkedListNext(tc->actors);
+    }
   }
 }
 
 int main(int argc, char** argv) {
   SDL_SetMainReady();
 
-  COIWindowInit();
+  COIWindowInit(SCREEN_WIDTH, SCREEN_HEIGHT);
   COIAssetLoaderInit();
 
   COIBoard* testBoard = COIBoardCreate(25, 25, 180, 0, COI_GLOBAL_WINDOW->_width, COI_GLOBAL_WINDOW->_height * 3, COI_GLOBAL_LOADER);
   TestContext* tc = malloc(sizeof(TestContext));
-  // tc->square = COISpriteCreateFromAssetID(640 / 2, 0, 32, 32, COI_GLOBAL_LOADER, 0, COIWindowGetRenderer(COI_GLOBAL_WINDOW));
-  // tc->yMomentum = 5;
-  // tc->xMomentum = 0;
-  // tc->moving = NONE;
+  tc->level = 3;
   tc->actors = LinkedListCreate();
-  tc->player = playerCreate(testBoard, 640 / 2, 0);
-  LinkedListAdd(tc->actors, (void*)dogCreate(testBoard, 640 / 3, 0));
-  LinkedListAdd(tc->actors, (void*)angelCreate(testBoard, 500, 250));
-  // LinkedListAdd(tc->actors, (void*)angelCreate(testBoard, 400, 150));
-  // LinkedListAdd(tc->actors, (void*)angelCreate(testBoard, 200, 360));
-  // LinkedListAdd(tc->actors, (void*)angelCreate(testBoard, 300, 400));
-  LinkedListAdd(tc->actors, (void*)rockCreate(testBoard, 350, 250));
+  tc->player = playerCreate(testBoard, SCREEN_WIDTH / 3, SCREEN_HEIGHT - 64);
+  loadLevel(tc, testBoard, tc->level);
+  // LinkedListAdd(tc->actors, (void*)dogCreate(testBoard, SCREEN_WIDTH / 3, 0));
+  // LinkedListAdd(tc->actors, (void*)angelCreate(testBoard, 500, 250));
+  // LinkedListAdd(tc->actors, (void*)rockCreate(testBoard, 350, 250));
 
   for (int i = 0; i < MAX_HEALTH; i++) {
     COISprite* heart = COISpriteCreateFromAssetID(0, i * 32, 32, 32, COI_GLOBAL_LOADER, HEART, COIWindowGetRenderer(COI_GLOBAL_WINDOW));
@@ -108,12 +112,12 @@ int main(int argc, char** argv) {
 
   IntListInitialize(&tc->souls, 3);
   tc->activeSoulIndex = -1;
-  tc->manaBar.x = 640 - 32;
+  tc->manaBar.x = SCREEN_WIDTH - 32;
   tc->manaBar.y = 0;
   tc->manaBar.w = 32;
   tc->manaBar.h = MANABAR_HEIGHT;
   COIBoardSetContext(testBoard, (void*)tc);
-  COIBoardLoadSpriteMap(testBoard, COIWindowGetRenderer(COI_GLOBAL_WINDOW), "spritemap.dat");
+  // COIBoardLoadSpriteMap(testBoard, COIWindowGetRenderer(COI_GLOBAL_WINDOW), "spritemap.dat");
   // COIBoardAddDynamicSprite(testBoard, tc->square);
   COIWindowSetBoard(COI_GLOBAL_WINDOW, testBoard, &testLoop);
   COI_GLOBAL_WINDOW->extraDraw = &extraDraw;

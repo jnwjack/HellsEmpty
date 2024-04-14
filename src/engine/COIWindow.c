@@ -2,7 +2,7 @@
 
 COIWindow* COI_GLOBAL_WINDOW = NULL;
 
-COIWindow* COIWindowCreate() {
+COIWindow* COIWindowCreate(unsigned int width, unsigned int height) {
   // Initialize SDL
   SDL_Init(SDL_INIT_VIDEO);
   IMG_Init(IMG_INIT_PNG);
@@ -10,9 +10,9 @@ COIWindow* COIWindowCreate() {
 
   
   COIWindow* window = malloc(sizeof(COIWindow));
-  window->_width = 640;
-  window->_height = 480;
-  window->_screen = SDL_CreateWindow("Conquest of Ichabod", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, window->_width, window->_height, 0);
+  window->_width = width;
+  window->_height = height;
+  window->_screen = SDL_CreateWindow("Hell's Empty", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, window->_width, window->_height, 0);
   window->_renderer = SDL_CreateRenderer(window->_screen, -1, 0);
   window->_currentBoard = NULL;
   window->_loop = NULL;
@@ -137,8 +137,8 @@ SDL_Renderer* COIWindowGetRenderer(COIWindow* window) {
   return window->_renderer;
 }
 
-void COIWindowInit() {
-  COI_GLOBAL_WINDOW = COIWindowCreate();
+void COIWindowInit(unsigned int width, unsigned int height) {
+  COI_GLOBAL_WINDOW = COIWindowCreate(width, height);
 }
 
 

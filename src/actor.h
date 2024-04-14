@@ -2,33 +2,7 @@
 #define ACTOR_H
 
 #include "engine/COI.h"
-
-#define MAX_MOMENTUM 10
-#define MAX_HEALTH 5
-#define MAX_MANA 500
-
-struct Actor;
-
-typedef enum Direction {
-  NONE,
-  LEFT,
-  RIGHT
-} Direction;
-
-typedef struct TestContext {
-  struct Actor* player;
-  COISprite* square;
-  int yMomentum;
-  int xMomentum;
-  Direction moving;
-  LinkedList* actors;
-  COISprite* hearts[MAX_HEALTH];
-  SDL_Rect manaBar;
-  IntList souls;
-  int activeSoulIndex;
-} TestContext;
-
-typedef void (*Callback)(struct Actor* dog, COIBoard* board, void* context);
+#include "types.h"
 
 typedef struct Actor {
   COISprite* sprite;
@@ -43,7 +17,9 @@ typedef struct Actor {
   int distanceToTarget[2];
   int mana;
   unsigned int timeLeft; // When 0, summoned actor disappears
+  bool jumping;
 } Actor;
+
 
 Actor* dogCreate(COIBoard* board, int x, int y);
 void dogTick(Actor* dog, COIBoard* board, void* context);
