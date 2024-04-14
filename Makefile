@@ -19,13 +19,15 @@ WINDOWS_CC = gcc
 WINDOWS_INCLUDE_BASE = C:\Users\jnw90\Projects\mingw-dev\include
 WINDOWS_LIB_BASE = C:\Users\jnw90\Projects\mingw-dev\lib
 WINDOWS_FLAGS = -m32 -D__WINDOWS__=1
-WINDOWS_SRCS = src\main.c  src\TextBox.c src\TimeState.c src\engine\COIAssetLoader.c src\engine\COIBoard.c src\engine\COIMenu.c src\engine\COISprite.c src\engine\COIString.c src\engine\COITextType.c src\engine\COITransition.c src\engine\COIWindow.c src\engine\util.c
+WINDOWS_SRCS = src\main.c src\actor.c src\collision.c  src\TextBox.c src\TimeState.c src\engine\COIAssetLoader.c src\engine\COIBoard.c src\engine\COIMenu.c src\engine\COISprite.c src\engine\COIString.c src\engine\COITextType.c src\engine\COITransition.c src\engine\COIWindow.c src\engine\util.c
 
 # TOOLS
 SRCS_TOOLS = tools/cbb.c src/engine/util.c
 CFLAG_TOOLS = -g
 
 windows:
+	$(WINDOWS_CC) $(WINDOWS_SRCS) -I$(WINDOWS_INCLUDE_BASE) -L$(WINDOWS_LIB_BASE) -w -lmingw32 $(LIBS) $(NATIVE_FLAGS) $(WINDOWS_FLAGS) -o $(OUTPUT)
+windowsrelease:
 	$(WINDOWS_CC) $(WINDOWS_SRCS) -I$(WINDOWS_INCLUDE_BASE) -L$(WINDOWS_LIB_BASE) -w -Wl,-subsystem,windows -lmingw32 $(LIBS) $(NATIVE_FLAGS) $(WINDOWS_FLAGS) -o $(OUTPUT)
 # the turtle command works on mac with emscripten 3.1.33
 turtle:

@@ -12,12 +12,26 @@ Actor* fireballCreate(COIBoard* board, int x, int y, int targetX, int targetY) {
   Actor* fireball = malloc(sizeof(Actor));
   fireball->tick = fireballTick;
   fireball->sprite = fireballSprite;
+  fireball->sprite->_visible = true;
+  fireball->counter = 0;
   fireball->distanceToTarget[0] = targetX - x;
   fireball->distanceToTarget[1] = targetY - y;  
   if (fireball->distanceToTarget[0] == 0) {
     fireball->xMomentum = 0;
   } else {
-    fireball->xMomentum = fireball->distanceToTarget[0] < 0 ? -1 : 1;
+    // int sign = fireball->distanceToTarget[0] < 0 ? -1 : 1;
+    int temp = fireball->distanceToTarget[1];
+    if (temp < 0) {
+      temp *= -1; // Guarantee to be positive
+    }
+    if (temp != 0) {
+      fireball->xMomentum = fireball->distanceToTarget[0] < 0 ? -1 : 1;
+      fireball->xMomentum = (fireball->distanceToTarget[0] / temp);
+    } else {
+      fireball->xMomentum = 1;
+    }
+    printf("xMomentum: %i\n", fireball->xMomentum);
+
   }
   if (fireball->distanceToTarget[1] == 0) {
     fireball->yMomentum = 0;
@@ -30,7 +44,28 @@ Actor* fireballCreate(COIBoard* board, int x, int y, int targetX, int targetY) {
 }
 
 void fireballTick(Actor* fireball, COIBoard* board, void* context) {
-  COIBoardMoveSprite(board, fireball->sprite, fireball->xMomentum, fireball->yMomentum);
+  if (fireball->xMomentum < 0) {
+    fireball->counter--;
+  } else {
+    fireball->counter++;
+  }
+  int yMove = 0;
+  int xMove = 0;
+  if (fireball->xMomentum != 0) {
+    xMove = fireball->xMomentum < 0 ? -1 : 1;
+  }
+  if (fireball->counter == fireball->xMomentum) {
+    yMove = fireball->yMomentum;
+    fireball->counter = 0;
+  }
+  COIBoardMoveSprite(board, fireball->sprite, xMove, yMove);
+  // COIBoardMoveSprite(board, fireball->sprite, fireball->xMomentum, fireball->yMomentum);
+  if (!fireball->sprite->_visible) {
+    // Out of frame, delete fireball
+    TestContext* tc = (TestContext*)context;
+    LinkedListRemove(tc->actors, fireball);
+    actorDestroy(fireball, board);
+  }
 }
 
 Actor* angelCreate(COIBoard* board, int x, int y) {
@@ -126,4 +161,10 @@ void dogTick(Actor* dog, COIBoard* board, void* context) {
       COIBoardMoveSprite(board, dog->sprite, effectiveXMomentum, 0);
     }
   }
+}
+
+void actorDestroy(Actor* actor, COIBoard* board) {
+  COIBoardRemoveDynamicSprite(board, actor->sprite);
+  COISpriteDestroy(actor->sprite);
+  free(actor);
 }

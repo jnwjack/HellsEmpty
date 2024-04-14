@@ -43,4 +43,6 @@ void fireballTick(Actor* fireball, COIBoard* board, void* context);
 Actor* angelCreate(COIBoard* board, int x, int y);
 void angelTick(Actor* angel, COIBoard* board, void* context);
 
+void actorDestroy(Actor* actor, COIBoard* board);
+
 #endif

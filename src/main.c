@@ -1,3 +1,7 @@
+#ifdef __WINDOWS__
+#define SDL_MAIN_HANDLED
+#endif
+
 #include "collision.h"
 #include "actor.h"
 
@@ -110,6 +114,8 @@ void testLoop(COIBoard* board, SDL_Event* event, void* context) {
 }
 
 int main(int argc, char** argv) {
+  SDL_SetMainReady();
+
   COIWindowInit();
   COIAssetLoaderInit();
 
@@ -127,6 +133,7 @@ int main(int argc, char** argv) {
   COIBoardAddDynamicSprite(testBoard, tc->square);
   COIWindowSetBoard(COI_GLOBAL_WINDOW, testBoard, &testLoop);
 
+  printf("beforeloop\n");
   COIWindowLoop(COI_GLOBAL_WINDOW, true);
 
 

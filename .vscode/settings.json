@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "collision.h": "c",
+        "actor.h": "c",
+        "coi.h": "c"
+    }
+}
