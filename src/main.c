@@ -10,6 +10,7 @@
 #define MANABAR_HEIGHT 224 // 32 * 7
 
 
+// Auxilliary drawing outside of COIWindow loop
 // Second arg is always NULL. Don't use it.
 void extraDraw(COIBoard* board, SDL_Event* _, void* context) {
   TestContext* tc = (TestContext*)context;
@@ -24,9 +25,19 @@ void extraDraw(COIBoard* board, SDL_Event* _, void* context) {
     printf("Error when retrieving old renderer color values.\n");
   }
 
-  // Auxilliary drawing outside of COIWindow loop
   SDL_SetRenderDrawColor(COIWindowGetRenderer(COI_GLOBAL_WINDOW), 0, 0, 255, 255);
   SDL_RenderFillRect(COIWindowGetRenderer(COI_GLOBAL_WINDOW), &tc->manaBar);
+
+  // Click Guide
+  if (tc->activeSoulIndex > -1) {
+    if (tc->canSpawnActor) {
+      SDL_SetRenderDrawColor(COIWindowGetRenderer(COI_GLOBAL_WINDOW), 0, 255, 0, 120);
+    } else {
+      SDL_SetRenderDrawColor(COIWindowGetRenderer(COI_GLOBAL_WINDOW), 255, 0, 0, 120);
+    }
+
+    SDL_RenderFillRect(COIWindowGetRenderer(COI_GLOBAL_WINDOW), &tc->clickGuide);
+  }
 
   // Reset old values
   SDL_SetRenderDrawColor(COIWindowGetRenderer(COI_GLOBAL_WINDOW), r, g, b, a);
@@ -35,6 +46,31 @@ void extraDraw(COIBoard* board, SDL_Event* _, void* context) {
 void testLoop(COIBoard* board, SDL_Event* event, void* context) {
   TestContext* tc = (TestContext*)context;
 
+  int mouseX, mouseY;
+  SDL_GetMouseState(&mouseX, &mouseY);
+  if (mouseX != tc->mouseX || mouseY != tc->mouseY) {
+    COIBoardQueueDraw(board);
+  }
+  tc->mouseX = mouseX;
+  tc->mouseY = mouseY;
+
+  if (tc->activeSoulIndex > -1) {
+    int soul = tc->souls.values[tc->activeSoulIndex];
+    // 3x3 block
+    if (soul == DOG) {
+       tc->clickGuide.x = tc->mouseX - (32 / 2) - 32;
+       tc->clickGuide.w = 96;
+       tc->clickGuide.y = tc->mouseY - (32 / 2) - 32;
+       tc->clickGuide.h = 96;
+    } else if (soul == ROCK) {
+      tc->clickGuide.x = tc->mouseX - (32 / 2);
+      tc->clickGuide.w = 32;
+      tc->clickGuide.y = tc->mouseY - (32 / 2);
+      tc->clickGuide.h = 32;
+    }
+
+    tc->canSpawnActor = sdlRectCollisionReturnOnFirst(&tc->clickGuide, board) == 0;
+  }
 
   // Accept input
   if (event->type == SDL_KEYDOWN) {
@@ -53,19 +89,33 @@ void testLoop(COIBoard* board, SDL_Event* event, void* context) {
         (event->key.keysym.sym == SDLK_d && tc->player->moving == RIGHT)) {
       tc->player->moving = NONE;
     } else if (event->key.keysym.sym == SDLK_q) {
-      printf("switch soul\n");
+      if (tc->activeSoulIndex > -1) {
+        COIBoardQueueDraw(board);
+        tc->activeSoulIndex = tc->activeSoulIndex == 0 ? tc->souls.length - 1 : tc->activeSoulIndex - 1;
+      }
+    } else if (event->key.keysym.sym == SDLK_e) {
+      if (tc->activeSoulIndex > -1) {
+        COIBoardQueueDraw(board);
+        tc->activeSoulIndex = tc->activeSoulIndex == tc->souls.length - 1 ? 0 : tc->activeSoulIndex + 1;
+      }
     }
   } else if (event->type == SDL_MOUSEBUTTONUP) {
-    if (tc->activeSoulIndex > -1 && tc->player->mana >= 200) {
-      int mouseX, mouseY;
-      SDL_GetMouseState(&mouseX, &mouseY);
+    int manaCost = 0;
+    if (tc->souls.values[tc->activeSoulIndex] == ROCK) {
+      manaCost = 100;
+    } else if (tc->souls.values[tc->activeSoulIndex] == DOG) {
+      manaCost = 200; 
+    }
+
+    if (tc->activeSoulIndex > -1 && tc->canSpawnActor && tc->player->mana >= manaCost) {
       if (tc->souls.values[tc->activeSoulIndex] == ROCK) {
-        LinkedListAdd(tc->actors, rockCreate(board, mouseX - 32 / 2, mouseY - 32 / 2));
+        LinkedListAdd(tc->actors, rockCreate(board, tc->mouseX - 32 / 2, tc->mouseY - 32 / 2));
+      } else if (tc->souls.values[tc->activeSoulIndex] == DOG) {
+        LinkedListAdd(tc->actors, dogCreate(board, tc->mouseX - 32 / 2, tc->mouseY - 32 / 2, false));
       }
       
+      tc->player->mana -= manaCost;
       COIBoardQueueDraw(board);
-
-      tc->player->mana -= 200;
     }
   }
 
@@ -94,13 +144,11 @@ int main(int argc, char** argv) {
 
   COIBoard* testBoard = COIBoardCreate(25, 25, 180, 0, COI_GLOBAL_WINDOW->_width, COI_GLOBAL_WINDOW->_height * 3, COI_GLOBAL_LOADER);
   TestContext* tc = malloc(sizeof(TestContext));
-  tc->level = 3;
+  tc->level = 1;
   tc->actors = LinkedListCreate();
   tc->player = playerCreate(testBoard, SCREEN_WIDTH / 3, SCREEN_HEIGHT - 64);
+  tc->canSpawnActor = false;
   loadLevel(tc, testBoard, tc->level);
-  // LinkedListAdd(tc->actors, (void*)dogCreate(testBoard, SCREEN_WIDTH / 3, 0));
-  // LinkedListAdd(tc->actors, (void*)angelCreate(testBoard, 500, 250));
-  // LinkedListAdd(tc->actors, (void*)rockCreate(testBoard, 350, 250));
 
   for (int i = 0; i < MAX_HEALTH; i++) {
     COISprite* heart = COISpriteCreateFromAssetID(0, i * 32, 32, 32, COI_GLOBAL_LOADER, HEART, COIWindowGetRenderer(COI_GLOBAL_WINDOW));

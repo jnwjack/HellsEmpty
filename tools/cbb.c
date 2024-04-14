@@ -291,8 +291,8 @@ static void activate(GtkApplication *app,
 					     GTK_STYLE_PROVIDER(cssProvider),
 					     GTK_STYLE_PROVIDER_PRIORITY_USER);
 
-  for (int x = 0; x < 150; x++) {
-    for (int y = 0; y < 150; y++) {
+  for (int x = 0; x < 40; x++) {
+    for (int y = 0; y < 40; y++) {
       GtkWidget* image = gtk_picture_new();
       gtk_widget_set_size_request(image, 20, 20);
 

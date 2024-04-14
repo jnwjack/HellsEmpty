@@ -43,7 +43,10 @@ void playerTick(Actor* player, COIBoard* board, void* context) {
   }
 
   // Restore mana
-  player->mana = MIN(MAX_MANA, player->mana + 1);
+  if (player->mana < MAX_MANA) {
+    player->mana++;
+    COIBoardQueueDraw(board);
+  }
 
 
   if (player->moving == LEFT) {
@@ -114,7 +117,7 @@ void playerTick(Actor* player, COIBoard* board, void* context) {
     player->xMomentum = effectiveXMomentum;
   }
 
-  if (player->sprite->_y == 0 && tc->level <= 4) {
+  if (player->sprite->_y == 0 && tc->level <= 8) {
     tc->level++;
     loadLevel(tc, board, tc->level);
 
@@ -197,12 +200,32 @@ void fireballTick(Actor* fireball, COIBoard* board, void* context) {
     actorDestroy(fireball, board);
   } else if (!tc->player->invincible && collisionWithPlayer(fireball->sprite, tc->player->sprite)) {
     tc->player->health = MAX(0, tc->player->health - 1);
-    tc->player->invincible = true;
-    tc->player->sprite->_autoHandle = false;
-    tc->hearts[tc->player->health]->_visible = false;
 
     LinkedListRemove(tc->actors, fireball);
     actorDestroy(fireball, board);
+
+    if (tc->player->health == 0) {
+      // Player death. Load checkpoint
+      printf("1\n");
+      tc->player->health = MAX_HEALTH;
+      tc->player->mana = MAX_MANA;
+      for (int i = 0; i < MAX_HEALTH; i++) {
+        printf("2\n");
+        tc->hearts[i]->_visible = true;
+      }
+      printf("loading level...\n");
+      if (tc->level >= 6) {
+        loadLevel(tc, board, 6);
+      } else if (tc->level >= 3) {
+        loadLevel(tc, board, 3);
+      } else {
+        loadLevel(tc, board, 1);
+      }
+    } else {
+      tc->player->invincible = true;
+      tc->player->sprite->_autoHandle = false;
+      tc->hearts[tc->player->health]->_visible = false;
+    }
   }
 }
 
@@ -234,7 +257,7 @@ void angelTick(Actor* angel, COIBoard* board, void* context) {
   }
 }
 
-Actor* dogCreate(COIBoard* board, int x, int y) {
+Actor* dogCreate(COIBoard* board, int x, int y, bool standingStill) {
   COISprite* dogSprite = COISpriteCreateFromAssetID(x, y, 32, 32,
                                                     COI_GLOBAL_LOADER,
                                                     DOG,
@@ -242,10 +265,16 @@ Actor* dogCreate(COIBoard* board, int x, int y) {
   
   COIBoardAddDynamicSprite(board, dogSprite);
   Actor* dog = malloc(sizeof(Actor));
-  dog->moving = LEFT;
-  dog->xMomentum = DOG_MOMENTUM;
+  if (standingStill) {
+    dog->moving = NONE;
+    dog->xMomentum = 0;
+    dog->yMomentum = 0;
+  } else {
+    dog->moving = LEFT;
+    dog->xMomentum = DOG_MOMENTUM;
+    dog->yMomentum = 5;
+  }
   dog->tick = dogTick;
-  dog->yMomentum = 5;
   dog->sprite = dogSprite;
   dog->timeLeft = LIFETIME;
 
@@ -254,75 +283,80 @@ Actor* dogCreate(COIBoard* board, int x, int y) {
 void dogTick(Actor* dog, COIBoard* board, void* context) {
   TestContext* tc = (TestContext*)context;
 
-  dog->timeLeft--;
-  // if (dog->timeLeft == 0) {
-  //   LinkedListRemove(tc->actors, dog);
-  //   actorDestroy(dog, board);
-  //   return;
-  // }
+  // Special behavior for pickup object, not player-spawned object
+  if (tc->souls.length >= 2) {
+    dog->timeLeft--;
 
-  dog->yMomentum = MIN(MAX_MOMENTUM, dog->yMomentum + 1);
+    dog->yMomentum = MIN(MAX_MOMENTUM, dog->yMomentum + 1);
 
-  if (dog->yMomentum > 0) {
-    int effectiveYMomentum = dog->yMomentum; 
-    for (int y = 0; y <= dog->yMomentum; y++) {
-      unsigned int collisionResult = collisionCheckOnTopOf(dog->sprite, board, 0, y);
-      if (collisionResult & CORNER_COLLIDE_BL || collisionResult & CORNER_COLLIDE_BR) {
-        effectiveYMomentum = y;
-        break;
+    if (dog->yMomentum > 0) {
+      int effectiveYMomentum = dog->yMomentum; 
+      for (int y = 0; y <= dog->yMomentum; y++) {
+        unsigned int collisionResult = collisionCheckOnTopOf(dog->sprite, board, 0, y);
+        if (collisionResult & CORNER_COLLIDE_BL || collisionResult & CORNER_COLLIDE_BR) {
+          effectiveYMomentum = y;
+          break;
+        }
+      }
+
+      if (effectiveYMomentum > 0) {
+        COIBoardMoveSprite(board, dog->sprite, 0, effectiveYMomentum);
+      }
+    } else if (dog->yMomentum < 0) {
+      COIBoardMoveSprite(board, dog->sprite, 0, dog->yMomentum);
+    }
+
+    if (dog->xMomentum > 0) {
+      int effectiveXMomentum = dog->xMomentum;
+      for (int x = 0; x <= dog->xMomentum; x++) {
+        unsigned int collisionResult = collisionCheckLeftOf(dog->sprite, board, x, 0);
+        if (collisionResult & CORNER_COLLIDE_BR || collisionResult & CORNER_COLLIDE_TR) {
+          effectiveXMomentum = x;
+          dog->xMomentum = -1 * DOG_MOMENTUM;
+          break;
+        }
+      }
+
+      if (effectiveXMomentum > 0) {
+        COIBoardMoveSprite(board, dog->sprite, effectiveXMomentum, 0);
+      }
+    } else if (dog->xMomentum < 0) {
+      // printf("neg. momentum\n");
+      int effectiveXMomentum = dog->xMomentum;
+      for (int x = 0; x >= dog->xMomentum; x--) {
+        unsigned int collisionResult = collisionCheckRightOf(dog->sprite, board, x, 0);
+        if (collisionResult & CORNER_COLLIDE_BL || collisionResult & CORNER_COLLIDE_TL) {
+          effectiveXMomentum = x;
+          dog->xMomentum = DOG_MOMENTUM;
+          break;
+        }
+      }
+
+      if (effectiveXMomentum < 0) {
+        COIBoardMoveSprite(board, dog->sprite, effectiveXMomentum, 0);
       }
     }
 
-    if (effectiveYMomentum > 0) {
-      COIBoardMoveSprite(board, dog->sprite, 0, effectiveYMomentum);
-    }
-  } else if (dog->yMomentum < 0) {
-    COIBoardMoveSprite(board, dog->sprite, 0, dog->yMomentum);
-  }
-
-  if (dog->xMomentum > 0) {
-    int effectiveXMomentum = dog->xMomentum;
-    for (int x = 0; x <= dog->xMomentum; x++) {
-      unsigned int collisionResult = collisionCheckLeftOf(dog->sprite, board, x, 0);
-      if (collisionResult & CORNER_COLLIDE_BR || collisionResult & CORNER_COLLIDE_TR) {
-        effectiveXMomentum = x;
-        dog->xMomentum = -1 * DOG_MOMENTUM;
-        break;
+    // Collision with enemies
+    LinkedListNode* oldNode = tc->actors->cursor; // Save place, reset when done
+    LinkedListResetCursor(tc->actors);
+    void* nextData = LinkedListNext(tc->actors);
+    Actor* currentActor = (Actor*)nextData;
+    while (currentActor) {
+      if (currentActor->sprite->_assetID == ANGEL && collisionWithPlayer(dog->sprite, currentActor->sprite) != 0) {
+        currentActor->timeLeft = 0;
       }
+      currentActor = LinkedListNext(tc->actors);
     }
+    tc->actors->cursor = oldNode;
+  } else if (collisionWithPlayer(dog->sprite, tc->player->sprite)) {
+    printf("got dog soul\n");
+    IntListAdd(&tc->souls, DOG);
+    tc->activeSoulIndex = tc->souls.length - 1;
 
-    if (effectiveXMomentum > 0) {
-      COIBoardMoveSprite(board, dog->sprite, effectiveXMomentum, 0);
-    }
-  } else if (dog->xMomentum < 0) {
-    // printf("neg. momentum\n");
-    int effectiveXMomentum = dog->xMomentum;
-    for (int x = 0; x >= dog->xMomentum; x--) {
-      unsigned int collisionResult = collisionCheckRightOf(dog->sprite, board, x, 0);
-      if (collisionResult & CORNER_COLLIDE_BL || collisionResult & CORNER_COLLIDE_TL) {
-        effectiveXMomentum = x;
-        dog->xMomentum = DOG_MOMENTUM;
-        break;
-      }
-    }
-
-    if (effectiveXMomentum < 0) {
-      COIBoardMoveSprite(board, dog->sprite, effectiveXMomentum, 0);
-    }
+    LinkedListRemove(tc->actors, dog);
+    actorDestroy(dog, board);
   }
-
-  // Collision with enemies
-  LinkedListNode* oldNode = tc->actors->cursor; // Save place, reset when done
-  LinkedListResetCursor(tc->actors);
-  void* nextData = LinkedListNext(tc->actors);
-  Actor* currentActor = (Actor*)nextData;
-  while (currentActor) {
-    if (currentActor->sprite->_assetID == ANGEL && collisionWithPlayer(dog->sprite, currentActor->sprite) != 0) {
-      currentActor->timeLeft = 0;
-    }
-    currentActor = LinkedListNext(tc->actors);
-  }
-  tc->actors->cursor = oldNode;
 }
 
 void actorDestroy(Actor* actor, COIBoard* board) {

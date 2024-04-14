@@ -35,6 +35,10 @@ typedef struct TestContext {
   IntList souls;
   int activeSoulIndex;
   unsigned int level;
+  SDL_Rect clickGuide;
+  int mouseX;
+  int mouseY;
+  bool canSpawnActor;
 } TestContext;
 
 #endif

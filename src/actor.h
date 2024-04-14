@@ -21,7 +21,7 @@ typedef struct Actor {
 } Actor;
 
 
-Actor* dogCreate(COIBoard* board, int x, int y);
+Actor* dogCreate(COIBoard* board, int x, int y, bool standingStill);
 void dogTick(Actor* dog, COIBoard* board, void* context);
 
 Actor* fireballCreate(COIBoard* board, int x, int y, int targetX, int targetY);

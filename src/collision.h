@@ -23,5 +23,6 @@ unsigned int collisionCheckLeftOf(COISprite* sprite, COIBoard* board, int deltaX
 unsigned int collisionCheckRightOf(COISprite* sprite, COIBoard* board, int deltaX, int deltaY);
 unsigned int collision(COISprite* sprite, COIBoard* board, int deltaX, int deltaY);
 unsigned int collisionWithPlayer(COISprite* sprite, COISprite* playerSprite);
+unsigned int sdlRectCollisionReturnOnFirst(SDL_Rect* rect, COIBoard* board);
 
 #endif

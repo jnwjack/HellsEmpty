@@ -14,6 +14,7 @@ COIWindow* COIWindowCreate(unsigned int width, unsigned int height) {
   window->_height = height;
   window->_screen = SDL_CreateWindow("Hell's Empty", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, window->_width, window->_height, 0);
   window->_renderer = SDL_CreateRenderer(window->_screen, -1, 0);
+  SDL_SetRenderDrawBlendMode(window->_renderer, SDL_BLENDMODE_BLEND);
   window->_currentBoard = NULL;
   window->_loop = NULL;
   window->extraDraw = NULL;

@@ -133,6 +133,87 @@ unsigned int collisionCheckOnTopOf(COISprite* sprite, COIBoard* board, int delta
   return result;
 }
 
+bool _checkIfSpriteInsideRect(COISprite* sprite, SDL_Rect* rect) {
+  int lX = sprite->_x;
+  int rX = lX + sprite->_width;
+  int tY = sprite->_y;
+  int bY = tY + sprite->_height;
+
+  int extentX = rect->x + rect->w;
+  int extentY = rect->y + rect->h;
+
+  if (lX >= rect->x && lX <= extentX &&
+	    tY >= rect->y && tY <= extentY) {
+    return true;
+  }
+  if (rX >= rect->x && rX <= extentX &&
+	    tY >= rect->y && tY <= extentY) {
+    return true;
+  }
+  if (rX >= rect->x && rX <= extentX &&
+	    bY >= rect->y && bY <= extentY) {
+    return true;
+  }
+  if (lX >= rect->x && lX <= extentX &&
+	    bY >= rect->y && bY <= extentY) {
+    return true;
+  }
+
+  return false;
+}
+
+unsigned int sdlRectCollisionReturnOnFirst(SDL_Rect* rect, COIBoard* board) {
+  int lX = rect->x;
+  int rX = lX + rect->w;
+  int tY = rect->y;
+  int bY = tY + rect->h;
+
+  unsigned int result = 0;
+  for (int i = 0; i < board->_spriteCount; i++) {
+    if (COISpriteContainsPoint(board->_sprites[i], lX, bY)) {
+      return CORNER_COLLIDE_BL;
+    }
+    if (COISpriteContainsPoint(board->_sprites[i], rX, bY)) {
+      return CORNER_COLLIDE_BR;
+    }
+    if (COISpriteContainsPoint(board->_sprites[i], lX, tY)) {
+      return CORNER_COLLIDE_TL;
+    }
+    if (COISpriteContainsPoint(board->_sprites[i], rX, tY)) {
+      return CORNER_COLLIDE_TR;
+    }
+
+    if (_checkIfSpriteInsideRect(board->_sprites[i], rect)) {
+      return 1; // Hacky
+    }
+  }
+
+  LinkedListResetCursor(board->dynamicSprites);
+  COISprite* dynSprite = LinkedListNext(board->dynamicSprites);
+  while (dynSprite != NULL) {
+    if (COISpriteContainsPoint(dynSprite, lX, bY)) {
+      return CORNER_COLLIDE_BL;
+    }
+    if (COISpriteContainsPoint(dynSprite, rX, bY)) {
+      return CORNER_COLLIDE_BR;
+    }
+    if (COISpriteContainsPoint(dynSprite, lX, tY)) {
+      return CORNER_COLLIDE_TL;
+    }
+    if (COISpriteContainsPoint(dynSprite, rX, tY)) {
+      return CORNER_COLLIDE_TR;
+    }
+
+    if (_checkIfSpriteInsideRect(dynSprite, rect)) {
+      return 1; // Hacky
+    }
+
+    dynSprite = LinkedListNext(board->dynamicSprites);
+  }
+
+  return 0;
+}
+
 unsigned int collision(COISprite* sprite, COIBoard* board, int deltaX, int deltaY) {
   // only try bottom left for now
   int lX = sprite->_x + deltaX;
