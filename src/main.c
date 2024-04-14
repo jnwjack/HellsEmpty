@@ -39,23 +39,27 @@ void testLoop(COIBoard* board, SDL_Event* event, void* context) {
   if (event->type == SDL_KEYDOWN) {
     if (event->key.keysym.sym == SDLK_SPACE) {
       tc->player->yMomentum = MAX(-15, tc->player->yMomentum - 30);
-    } else if (event->key.keysym.sym == SDLK_LEFT) {
+    } else if (event->key.keysym.sym == SDLK_a) {
       tc->player->moving = LEFT;
 	    // COIBoardMoveSprite(board, tc->square, -30, 0);
-    } else if (event->key.keysym.sym == SDLK_RIGHT) {
+    } else if (event->key.keysym.sym == SDLK_d) {
       tc->player->moving = RIGHT;
       // COIBoardMoveSprite(board, tc->square, 30, 0);
     }
   } else if (event->type == SDL_KEYUP) {
-    if ((event->key.keysym.sym == SDLK_LEFT && tc->player->moving == LEFT) ||
-        (event->key.keysym.sym == SDLK_RIGHT && tc->player->moving == RIGHT)) {
+    if ((event->key.keysym.sym == SDLK_a && tc->player->moving == LEFT) ||
+        (event->key.keysym.sym == SDLK_d && tc->player->moving == RIGHT)) {
       tc->player->moving = NONE;
+    } else if (event->key.keysym.sym == SDLK_q) {
+      printf("switch soul\n");
     }
   } else if (event->type == SDL_MOUSEBUTTONUP) {
-    if (tc->player->mana >= 200) {
+    if (tc->activeSoulIndex > -1 && tc->player->mana >= 200) {
       int mouseX, mouseY;
       SDL_GetMouseState(&mouseX, &mouseY);
-      LinkedListAdd(tc->actors, rockCreate(board, mouseX - 32 / 2, mouseY - 32 / 2));
+      if (tc->souls.values[tc->activeSoulIndex] == ROCK) {
+        LinkedListAdd(tc->actors, rockCreate(board, mouseX - 32 / 2, mouseY - 32 / 2));
+      }
       
       COIBoardQueueDraw(board);
 
@@ -89,9 +93,10 @@ int main(int argc, char** argv) {
   tc->player = playerCreate(testBoard, 640 / 2, 0);
   LinkedListAdd(tc->actors, (void*)dogCreate(testBoard, 640 / 3, 0));
   LinkedListAdd(tc->actors, (void*)angelCreate(testBoard, 500, 250));
-  LinkedListAdd(tc->actors, (void*)angelCreate(testBoard, 400, 150));
-  LinkedListAdd(tc->actors, (void*)angelCreate(testBoard, 200, 360));
-  LinkedListAdd(tc->actors, (void*)angelCreate(testBoard, 300, 400));
+  // LinkedListAdd(tc->actors, (void*)angelCreate(testBoard, 400, 150));
+  // LinkedListAdd(tc->actors, (void*)angelCreate(testBoard, 200, 360));
+  // LinkedListAdd(tc->actors, (void*)angelCreate(testBoard, 300, 400));
+  LinkedListAdd(tc->actors, (void*)rockCreate(testBoard, 350, 250));
 
   for (int i = 0; i < MAX_HEALTH; i++) {
     COISprite* heart = COISpriteCreateFromAssetID(0, i * 32, 32, 32, COI_GLOBAL_LOADER, HEART, COIWindowGetRenderer(COI_GLOBAL_WINDOW));
@@ -101,6 +106,8 @@ int main(int argc, char** argv) {
     tc->hearts[i] = heart;
   }
 
+  IntListInitialize(&tc->souls, 3);
+  tc->activeSoulIndex = -1;
   tc->manaBar.x = 640 - 32;
   tc->manaBar.y = 0;
   tc->manaBar.w = 32;
@@ -116,6 +123,7 @@ int main(int argc, char** argv) {
 
   // COIBoardRemoveDynamicSprite(testBoard, tc->square);
   // COISpriteDestroy(tc->square);
+  IntListDestroy(&tc->souls);
   free(tc);
   COIBoardDestroy(testBoard);
   COIAssetLoaderDestroy(COI_GLOBAL_LOADER);

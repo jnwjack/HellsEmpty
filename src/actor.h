@@ -24,6 +24,8 @@ typedef struct TestContext {
   LinkedList* actors;
   COISprite* hearts[MAX_HEALTH];
   SDL_Rect manaBar;
+  IntList souls;
+  int activeSoulIndex;
 } TestContext;
 
 typedef void (*Callback)(struct Actor* dog, COIBoard* board, void* context);

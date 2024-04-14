@@ -126,8 +126,18 @@ Actor* rockCreate(COIBoard* board, int x, int y) {
 void rockTick(Actor* rock, COIBoard* board, void* context) {
   TestContext* tc = (TestContext*)context;
 
-  rock->timeLeft--;
-  if (rock->timeLeft == 0) {
+  // Do we have this soul type?
+  if (tc->souls.length > 0) {
+    rock->timeLeft--;
+    if (rock->timeLeft == 0) {
+      LinkedListRemove(tc->actors, rock);
+      actorDestroy(rock, board);
+    }
+  } else if (collisionWithPlayer(rock->sprite, tc->player->sprite)) {
+    printf("got rock soul\n");
+    IntListAdd(&tc->souls, ROCK);
+    tc->activeSoulIndex = 0;
+
     LinkedListRemove(tc->actors, rock);
     actorDestroy(rock, board);
   }
