@@ -119,6 +119,8 @@ Actor* rockCreate(COIBoard* board, int x, int y) {
   rock->tick = rockTick;
   rock->sprite = rockSprite;
   rock->timeLeft = LIFETIME;
+
+  return rock;
 }
 
 void rockTick(Actor* rock, COIBoard* board, void* context) {

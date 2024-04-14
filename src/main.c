@@ -88,10 +88,10 @@ int main(int argc, char** argv) {
   tc->actors = LinkedListCreate();
   tc->player = playerCreate(testBoard, 640 / 2, 0);
   LinkedListAdd(tc->actors, (void*)dogCreate(testBoard, 640 / 3, 0));
-  // LinkedListAdd(tc->actors, (void*)angelCreate(testBoard, 500, 250));
-  // LinkedListAdd(tc->actors, (void*)angelCreate(testBoard, 400, 150));
-  // LinkedListAdd(tc->actors, (void*)angelCreate(testBoard, 200, 360));
-  // LinkedListAdd(tc->actors, (void*)angelCreate(testBoard, 300, 400));
+  LinkedListAdd(tc->actors, (void*)angelCreate(testBoard, 500, 250));
+  LinkedListAdd(tc->actors, (void*)angelCreate(testBoard, 400, 150));
+  LinkedListAdd(tc->actors, (void*)angelCreate(testBoard, 200, 360));
+  LinkedListAdd(tc->actors, (void*)angelCreate(testBoard, 300, 400));
 
   for (int i = 0; i < MAX_HEALTH; i++) {
     COISprite* heart = COISpriteCreateFromAssetID(0, i * 32, 32, 32, COI_GLOBAL_LOADER, HEART, COIWindowGetRenderer(COI_GLOBAL_WINDOW));
