@@ -158,3 +158,26 @@ unsigned int collision(COISprite* sprite, COIBoard* board, int deltaX, int delta
 
   return result;
 }
+
+unsigned int collisionWithPlayer(COISprite* sprite, COISprite* playerSprite) {
+  int lX = sprite->_x;
+  int rX = lX + sprite->_width;
+  int tY = sprite->_y;
+  int bY = tY + sprite->_height;
+
+  unsigned int result = 0;
+  if (COISpriteContainsPoint(playerSprite, lX, bY)) {
+    result |= CORNER_COLLIDE_BL;
+  }
+  if (COISpriteContainsPoint(playerSprite, rX, bY)) {
+    result |= CORNER_COLLIDE_BR;
+  }
+  if (COISpriteContainsPoint(playerSprite, lX, tY)) {
+    result |= CORNER_COLLIDE_TL;
+  }
+  if (COISpriteContainsPoint(playerSprite, rX, tY)) {
+    result |= CORNER_COLLIDE_TR;
+  }
+  
+  return result;
+}

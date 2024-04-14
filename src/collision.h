@@ -10,6 +10,8 @@
 #define PLATFORM_MIDDLE 4
 #define ROCK 5
 #define DOG 6
+#define ANGEL 7
+#define HEART 8
 
 
 
@@ -22,5 +24,6 @@ unsigned int collisionCheckOnTopOf(COISprite* sprite, COIBoard* board, int delta
 unsigned int collisionCheckLeftOf(COISprite* sprite, COIBoard* board, int deltaX, int deltaY);
 unsigned int collisionCheckRightOf(COISprite* sprite, COIBoard* board, int deltaX, int deltaY);
 unsigned int collision(COISprite* sprite, COIBoard* board, int deltaX, int deltaY);
+unsigned int collisionWithPlayer(COISprite* sprite, COISprite* playerSprite);
 
 #endif

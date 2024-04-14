@@ -22,6 +22,7 @@ typedef struct COIWindow {
   int _width;
   int _height;
   COILoop _loop;
+  COILoop extraDraw; // JNW: New. Draw after loop
   void* _loopContext;
   bool shouldQuit;
   COITransition transition;

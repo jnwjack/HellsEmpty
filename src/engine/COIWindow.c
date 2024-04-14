@@ -16,6 +16,7 @@ COIWindow* COIWindowCreate() {
   window->_renderer = SDL_CreateRenderer(window->_screen, -1, 0);
   window->_currentBoard = NULL;
   window->_loop = NULL;
+  window->extraDraw = NULL;
   window->shouldQuit = false;
   COITransitionInit(&window->transition, COI_TRANSITION_NONE, window);
   return window;
@@ -58,6 +59,11 @@ void COIWindowLoop(void* window_v, bool repeat) {
     
     if (window->_currentBoard->_shouldDraw) {
       SDL_RenderClear(window->_renderer);
+      SDL_SetRenderDrawColor(window->_renderer,
+			 COIBoardBGColor(window->_currentBoard, INDEX_RED),
+			 COIBoardBGColor(window->_currentBoard, INDEX_GREEN),
+			 COIBoardBGColor(window->_currentBoard, INDEX_BLUE),
+			 COIBoardBGColor(window->_currentBoard, INDEX_ALPHA));
 
       COIBoardUpdateSpriteVisibility(window->_currentBoard);
       COISprite** sprites = COIBoardGetSprites(window->_currentBoard);
@@ -94,6 +100,8 @@ void COIWindowLoop(void* window_v, bool repeat) {
 	  COIStringDraw(strings[i], window->_renderer);
 	}
       }
+
+      window->extraDraw(window->_currentBoard, NULL, window->_currentBoard->context);
 
       if (!window->transition.complete) {
 	window->transition.update(&window->transition, window);
