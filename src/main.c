@@ -163,7 +163,7 @@ int main(int argc, char** argv) {
 
   COIBoard* testBoard = COIBoardCreate(25, 25, 180, 0, COI_GLOBAL_WINDOW->_width, COI_GLOBAL_WINDOW->_height * 3, COI_GLOBAL_LOADER);
   TestContext* tc = malloc(sizeof(TestContext));
-  tc->level = 9;
+  tc->level = 1;
   tc->actors = LinkedListCreate();
   tc->player = playerCreate(testBoard, SCREEN_WIDTH / 3, SCREEN_HEIGHT - 128);
   tc->canSpawnActor = false;
