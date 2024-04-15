@@ -44,6 +44,7 @@ typedef struct TestContext {
   COIString* title;
   COIString* instructions;
   COIString* soulRetrieved;
+  COIString* endText;
   bool started;
 } TestContext;
 

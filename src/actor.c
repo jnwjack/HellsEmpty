@@ -149,7 +149,7 @@ void playerTick(Actor* player, COIBoard* board, void* context) {
 
   COISpriteSetSheetIndex(player->sprite, player->sheetIndexY, player->sheetIndexX);
 
-  if (player->sprite->_y == 0 && tc->level <= 8) {
+  if (player->sprite->_y == 0 && tc->level <= 9) {
     tc->level++;
     loadLevel(tc, board, tc->level);
 
@@ -238,21 +238,22 @@ void fireballTick(Actor* fireball, COIBoard* board, void* context) {
 
     if (tc->player->health == 0) {
       // Player death. Load checkpoint
-      printf("1\n");
+      tc->player->sprite->_x = 64;
+      tc->player->sprite->_y = SCREEN_HEIGHT - 64;
       tc->player->health = MAX_HEALTH;
       tc->player->mana = MAX_MANA;
       for (int i = 0; i < MAX_HEALTH; i++) {
-        printf("2\n");
         tc->hearts[i]->_visible = true;
       }
-      printf("loading level...\n");
-      if (tc->level >= 6) {
-        loadLevel(tc, board, 6);
-      } else if (tc->level >= 3) {
-        loadLevel(tc, board, 3);
+      if (tc->level >= 7) {
+        tc->level = 7;
+      } else if (tc->level >= 4) {
+        tc->level = 4;
       } else {
-        loadLevel(tc, board, 1);
+        tc->level = 1;
       }
+      loadLevel(tc, board, tc->level);
+
     } else {
       tc->player->invincible = true;
       tc->player->sprite->_autoHandle = false;

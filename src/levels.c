@@ -50,13 +50,61 @@ void loadLevel(TestContext* tc, COIBoard* board, unsigned int level) {
     LinkedListAdd(tc->actors, (void*)angelCreate(board, 96, 384));
     break;
   case 8:
-    LinkedListAdd(tc->actors, (void*)rockCreate(board, 256, 640));
-    LinkedListAdd(tc->actors, (void*)dogCreate(board, 128, 640, true));
+    // LinkedListAdd(tc->actors, (void*)rockCreate(board, 256, 640));
+    // LinkedListAdd(tc->actors, (void*)dogCreate(board, 128, 640, true));
     LinkedListAdd(tc->actors, (void*)angelCreate(board, 640, 384));
     LinkedListAdd(tc->actors, (void*)angelCreate(board, 672, 384));
     LinkedListAdd(tc->actors, (void*)angelCreate(board, 704, 384));
     break;
   case 9:
+    // LinkedListAdd(tc->actors, (void*)rockCreate(board, 256, 640));
+    // LinkedListAdd(tc->actors, (void*)dogCreate(board, 128, 640, true));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 192, 96));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 256, 96));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 320, 96));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 384, 96));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 448, 96));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 512, 96));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 576, 96));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 640, 96));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 704, 96));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 768, 96));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 832, 96));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 192, 160));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 256, 160));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 320, 160));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 384, 160));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 448, 160));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 512, 160));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 576, 160));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 640, 160));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 704, 160));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 768, 160));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 832, 160));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 192, 224));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 256, 224));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 320, 224));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 384, 224));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 448, 224));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 512, 224));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 576, 224));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 640, 224));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 704, 224));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 768, 224));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 832, 224));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 192, 288));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 256, 288));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 320, 288));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 384, 288));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 448, 288));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 512, 288));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 576, 288));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 640, 288));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 704, 288));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 768, 288));
+    LinkedListAdd(tc->actors, (void*)angelCreate(board, 832, 288));
+    break;
+  case 10:
     break;
   default:
     

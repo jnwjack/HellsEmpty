@@ -54,6 +54,12 @@ void startLoop(COIBoard* board, SDL_Event* event, void* context) {
 void testLoop(COIBoard* board, SDL_Event* event, void* context) {
   TestContext* tc = (TestContext*)context;
 
+  COIBoardQueueDraw(board);
+
+  if (tc->level >= 10) {
+    COIStringSetVisible(tc->endText, true);
+  }
+
   int mouseX, mouseY;
   SDL_GetMouseState(&mouseX, &mouseY);
   if (mouseX != tc->mouseX || mouseY != tc->mouseY) {
@@ -147,8 +153,6 @@ void testLoop(COIBoard* board, SDL_Event* event, void* context) {
       currentActor = LinkedListNext(tc->actors);
     }
   }
-
-  COIBoardQueueDraw(board);
 }
 
 int main(int argc, char** argv) {
@@ -159,7 +163,7 @@ int main(int argc, char** argv) {
 
   COIBoard* testBoard = COIBoardCreate(25, 25, 180, 0, COI_GLOBAL_WINDOW->_width, COI_GLOBAL_WINDOW->_height * 3, COI_GLOBAL_LOADER);
   TestContext* tc = malloc(sizeof(TestContext));
-  tc->level = 8;
+  tc->level = 9;
   tc->actors = LinkedListCreate();
   tc->player = playerCreate(testBoard, SCREEN_WIDTH / 3, SCREEN_HEIGHT - 128);
   tc->canSpawnActor = false;
@@ -167,11 +171,14 @@ int main(int argc, char** argv) {
   tc->smallerTextType = COITextTypeCreate(64, 255, 255, 255, COIWindowGetRenderer(COI_GLOBAL_WINDOW));
   tc->title = COIStringCreate("Hell's Empty", 32, 64, tc->titleTextType);
   tc->instructions = COIStringCreate("Press any key to begin", 128, 320, tc->smallerTextType);
+  tc->endText = COIStringCreate("Fin.", 384, 128, tc->titleTextType);
   tc->started = false;
   COIBoardAddString(testBoard, tc->title);
   COIBoardAddString(testBoard, tc->instructions);
+  COIBoardAddString(testBoard, tc->endText);
   COIStringSetVisible(tc->title, true);
   COIStringSetVisible(tc->instructions, true);
+  COIStringSetVisible(tc->endText, false);
   loadLevel(tc, testBoard, tc->level);
 
   for (int i = 0; i < MAX_HEALTH; i++) {
