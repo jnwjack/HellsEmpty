@@ -196,7 +196,7 @@ void rockTick(Actor* rock, COIBoard* board, void* context) {
 Actor* fireballCreate(COIBoard* board, int x, int y, int targetX, int targetY) {
   COISprite* fireballSprite = COISpriteCreateFromAssetID(x, y, 16, 16,
                                                         COI_GLOBAL_LOADER,
-                                                        ROCK,
+                                                        FIREBALL,
                                                         COIWindowGetRenderer(COI_GLOBAL_WINDOW));
   COIBoardAddDynamicSprite(board, fireballSprite);
   Actor* fireball = malloc(sizeof(Actor));
@@ -266,6 +266,7 @@ Actor* angelCreate(COIBoard* board, int x, int y) {
                                                       COI_GLOBAL_LOADER,
                                                       ANGEL,
                                                       COIWindowGetRenderer(COI_GLOBAL_WINDOW));
+  COISpriteSetSheetIndex(angelSprite, 0, 0);
   COIBoardAddDynamicSprite(board, angelSprite);
   Actor* angel = malloc(sizeof(Actor));
   angel->moving = NONE;
@@ -279,6 +280,13 @@ Actor* angelCreate(COIBoard* board, int x, int y) {
 
 void angelTick(Actor* angel, COIBoard* board, void* context) {
   TestContext* tc = (TestContext*)context;
+
+  // Spritesheet stuff
+  if (tc->player->sprite->_x > angel->sprite->_x) {
+    COISpriteSetSheetIndex(angel->sprite, 0 ,0);
+  } else if (tc->player->sprite->_x < angel->sprite->_x) {
+    COISpriteSetSheetIndex(angel->sprite, 0, 1);
+  }
 
   angel->counter++;
   if (angel->counter > 100) {

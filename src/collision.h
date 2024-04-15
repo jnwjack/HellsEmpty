@@ -12,6 +12,7 @@
 #define DOG 6
 #define ANGEL 7
 #define HEART 8
+#define FIREBALL 9
 
 #define CORNER_COLLIDE_TL 1
 #define CORNER_COLLIDE_BL 2
