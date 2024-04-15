@@ -19,6 +19,8 @@ void loadLevel(TestContext* tc, COIBoard* board, unsigned int level) {
 
   switch (level) {
   case 1:
+    // LinkedListAdd(tc->actors, (void*)rockCreate(board, 256, 640));
+    // LinkedListAdd(tc->actors, (void*)dogCreate(board, 128, 640, true));
     // LinkedListAdd(tc->actors, (void*)dogCreate(board, SCREEN_WIDTH / 3, 0));
     // LinkedListAdd(tc->actors, (void*)angelCreate(board, 500, 250));
     break;
@@ -36,7 +38,6 @@ void loadLevel(TestContext* tc, COIBoard* board, unsigned int level) {
     LinkedListAdd(tc->actors, (void*)angelCreate(board, 600, 450));
     break;
   case 6:
-    LinkedListAdd(tc->actors, (void*)rockCreate(board, 264, 704));
     LinkedListAdd(tc->actors, (void*)dogCreate(board, 512, 512, true));
     break;
   case 7:
@@ -49,11 +50,16 @@ void loadLevel(TestContext* tc, COIBoard* board, unsigned int level) {
     LinkedListAdd(tc->actors, (void*)angelCreate(board, 96, 384));
     break;
   case 8:
+    LinkedListAdd(tc->actors, (void*)rockCreate(board, 256, 640));
+    LinkedListAdd(tc->actors, (void*)dogCreate(board, 128, 640, true));
     LinkedListAdd(tc->actors, (void*)angelCreate(board, 640, 384));
     LinkedListAdd(tc->actors, (void*)angelCreate(board, 672, 384));
     LinkedListAdd(tc->actors, (void*)angelCreate(board, 704, 384));
     break;
+  case 9:
+    break;
   default:
+    
     printf("Error: No level %i\n", level);
   }
 }

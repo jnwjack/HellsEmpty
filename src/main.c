@@ -43,6 +43,14 @@ void extraDraw(COIBoard* board, SDL_Event* _, void* context) {
   SDL_SetRenderDrawColor(COIWindowGetRenderer(COI_GLOBAL_WINDOW), r, g, b, a);
 }
 
+void endLoop(COIBoard* board, SDL_Event* event, void* context) {
+  // Do Nothing
+}
+
+void startLoop(COIBoard* board, SDL_Event* event, void* context) {
+
+}
+
 void testLoop(COIBoard* board, SDL_Event* event, void* context) {
   TestContext* tc = (TestContext*)context;
 
@@ -74,6 +82,11 @@ void testLoop(COIBoard* board, SDL_Event* event, void* context) {
 
   // Accept input
   if (event->type == SDL_KEYDOWN) {
+    if (!tc->started) {
+      tc->started = true;
+      COIStringSetVisible(tc->title, false);
+      COIStringSetVisible(tc->instructions, false);
+    }
     if (event->key.keysym.sym == SDLK_SPACE && !tc->player->jumping) {
       tc->player->yMomentum = MAX(-15, tc->player->yMomentum - 30);
       tc->player->jumping = true;
@@ -134,6 +147,8 @@ void testLoop(COIBoard* board, SDL_Event* event, void* context) {
       currentActor = LinkedListNext(tc->actors);
     }
   }
+
+  COIBoardQueueDraw(board);
 }
 
 int main(int argc, char** argv) {
@@ -144,10 +159,19 @@ int main(int argc, char** argv) {
 
   COIBoard* testBoard = COIBoardCreate(25, 25, 180, 0, COI_GLOBAL_WINDOW->_width, COI_GLOBAL_WINDOW->_height * 3, COI_GLOBAL_LOADER);
   TestContext* tc = malloc(sizeof(TestContext));
-  tc->level = 1;
+  tc->level = 8;
   tc->actors = LinkedListCreate();
-  tc->player = playerCreate(testBoard, SCREEN_WIDTH / 3, SCREEN_HEIGHT - 64);
+  tc->player = playerCreate(testBoard, SCREEN_WIDTH / 3, SCREEN_HEIGHT - 128);
   tc->canSpawnActor = false;
+  tc->titleTextType = COITextTypeCreate(160, 230, 10, 25, COIWindowGetRenderer(COI_GLOBAL_WINDOW));
+  tc->smallerTextType = COITextTypeCreate(64, 255, 255, 255, COIWindowGetRenderer(COI_GLOBAL_WINDOW));
+  tc->title = COIStringCreate("Hell's Empty", 32, 64, tc->titleTextType);
+  tc->instructions = COIStringCreate("Press any key to begin", 128, 320, tc->smallerTextType);
+  tc->started = false;
+  COIBoardAddString(testBoard, tc->title);
+  COIBoardAddString(testBoard, tc->instructions);
+  COIStringSetVisible(tc->title, true);
+  COIStringSetVisible(tc->instructions, true);
   loadLevel(tc, testBoard, tc->level);
 
   for (int i = 0; i < MAX_HEALTH; i++) {

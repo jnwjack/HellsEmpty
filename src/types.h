@@ -39,6 +39,12 @@ typedef struct TestContext {
   int mouseX;
   int mouseY;
   bool canSpawnActor;
+  COITextType* titleTextType;
+  COITextType* smallerTextType;
+  COIString* title;
+  COIString* instructions;
+  COIString* soulRetrieved;
+  bool started;
 } TestContext;
 
 #endif

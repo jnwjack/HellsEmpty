@@ -9,6 +9,7 @@
 
 Actor* playerCreate(COIBoard* board, int x, int y) {
   COISprite* playerSprite = COISpriteCreateFromAssetID(x, y, 32, 32, COI_GLOBAL_LOADER, 0, COIWindowGetRenderer(COI_GLOBAL_WINDOW));
+  COISpriteSetSheetIndex(playerSprite, 0, 0);
   COIBoardAddDynamicSprite(board, playerSprite);
 
   Actor* player = malloc(sizeof(Actor));
@@ -22,6 +23,9 @@ Actor* playerCreate(COIBoard* board, int x, int y) {
   player->invincible = false;
   player->timeLeft = LIFETIME;
   player->jumping = false;
+  player->sheetIndexX = 0;
+  player->sheetIndexY = 0;
+  player->spriteSheetCounter = 0;
 
   return player;
 }
@@ -80,6 +84,8 @@ void playerTick(Actor* player, COIBoard* board, void* context) {
     } else {
       player->jumping = false;
     }
+
+    player->yMomentum = effectiveYMomentum;
   } else if (player->yMomentum < 0) {
     COIBoardMoveSprite(board, player->sprite, 0, player->yMomentum);
   }
@@ -116,6 +122,32 @@ void playerTick(Actor* player, COIBoard* board, void* context) {
 
     player->xMomentum = effectiveXMomentum;
   }
+
+  // Update spritesheet position
+  bool inFirstFrame = player->spriteSheetCounter < PLAYER_WALK_TICKS / 2;
+  if (player->yMomentum < 0) {
+    player->sheetIndexX = 4;
+  } else if (player->yMomentum > 0) {
+    player->sheetIndexX = 5;
+  } else {
+    if (player->xMomentum != 0) {
+      player->sheetIndexX = inFirstFrame ? 2 : 3;
+    } else {
+      player->sheetIndexX = 0;
+    }
+  }
+  if (player->xMomentum > 0) {
+    player->sheetIndexY = 0;
+  } else if (player->xMomentum < 0) {
+    player->sheetIndexY = 1;
+  }
+
+  player->spriteSheetCounter++;
+  if (player->spriteSheetCounter >= PLAYER_WALK_TICKS) {
+    player->spriteSheetCounter = 0;
+  }
+
+  COISpriteSetSheetIndex(player->sprite, player->sheetIndexY, player->sheetIndexX);
 
   if (player->sprite->_y == 0 && tc->level <= 8) {
     tc->level++;
@@ -262,6 +294,7 @@ Actor* dogCreate(COIBoard* board, int x, int y, bool standingStill) {
                                                     COI_GLOBAL_LOADER,
                                                     DOG,
                                                     COIWindowGetRenderer(COI_GLOBAL_WINDOW));
+  COISpriteSetSheetIndex(dogSprite, 0, 0);
   
   COIBoardAddDynamicSprite(board, dogSprite);
   Actor* dog = malloc(sizeof(Actor));
@@ -277,6 +310,7 @@ Actor* dogCreate(COIBoard* board, int x, int y, bool standingStill) {
   dog->tick = dogTick;
   dog->sprite = dogSprite;
   dog->timeLeft = LIFETIME;
+  dog->spriteSheetCounter = 0;
 
   return dog;
 }
@@ -335,6 +369,25 @@ void dogTick(Actor* dog, COIBoard* board, void* context) {
       if (effectiveXMomentum < 0) {
         COIBoardMoveSprite(board, dog->sprite, effectiveXMomentum, 0);
       }
+    }
+
+
+    // Spritesheet stuff
+    bool inFirstFrame = dog->spriteSheetCounter < PLAYER_WALK_TICKS / 2;
+    if (dog->xMomentum > 0) {
+      dog->sheetIndexY = 0;
+      dog->sheetIndexX = inFirstFrame ? 1 : 2;
+    } else if (dog->xMomentum < 0) {
+      dog->sheetIndexY = 1;
+      dog->sheetIndexX = inFirstFrame ? 1 : 2;
+    } else {
+      dog->sheetIndexX = 0;
+    }
+    COISpriteSetSheetIndex(dog->sprite, dog->sheetIndexY, dog->sheetIndexX);
+
+    dog->spriteSheetCounter++;
+    if (dog->spriteSheetCounter >= PLAYER_WALK_TICKS) {
+      dog->spriteSheetCounter = 0;
     }
 
     // Collision with enemies

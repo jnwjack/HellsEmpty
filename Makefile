@@ -19,7 +19,7 @@ WINDOWS_CC = gcc
 WINDOWS_INCLUDE_BASE = C:\Users\jnw90\Projects\mingw-dev\include
 WINDOWS_LIB_BASE = C:\Users\jnw90\Projects\mingw-dev\lib
 WINDOWS_FLAGS = -m32 -D__WINDOWS__=1
-WINDOWS_SRCS = src\main.c src\actor.c src\collision.c  src\TextBox.c src\TimeState.c src\engine\COIAssetLoader.c src\engine\COIBoard.c src\engine\COIMenu.c src\engine\COISprite.c src\engine\COIString.c src\engine\COITextType.c src\engine\COITransition.c src\engine\COIWindow.c src\engine\util.c
+WINDOWS_SRCS = src\main.c src\actor.c src\collision.c src\levels.c  src\TextBox.c src\TimeState.c src\engine\COIAssetLoader.c src\engine\COIBoard.c src\engine\COIMenu.c src\engine\COISprite.c src\engine\COIString.c src\engine\COITextType.c src\engine\COITransition.c src\engine\COIWindow.c src\engine\util.c
 
 # TOOLS
 SRCS_TOOLS = tools/cbb.c src/engine/util.c

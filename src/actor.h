@@ -13,11 +13,14 @@ typedef struct Actor {
   Direction moving;
   int health;
   unsigned int counter;
+  unsigned int spriteSheetCounter;
   double angle;
   int distanceToTarget[2];
   int mana;
   unsigned int timeLeft; // When 0, summoned actor disappears
   bool jumping;
+  int sheetIndexY;
+  int sheetIndexX;
 } Actor;
 
 
@@ -30,6 +33,7 @@ void fireballTick(Actor* fireball, COIBoard* board, void* context);
 Actor* angelCreate(COIBoard* board, int x, int y);
 void angelTick(Actor* angel, COIBoard* board, void* context);
 
+#define PLAYER_WALK_TICKS 8 // Ticks per walk frame
 Actor* playerCreate(COIBoard* board, int x, int y);
 void playerTick(Actor* player, COIBoard* board, void* context);
 
